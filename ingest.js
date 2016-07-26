@@ -7,14 +7,18 @@ var client = new elasticsearch.Client({
 });
 var mup = new Meetup()
 
-// TODO use timelion to create a moving average for yes/no
-// TODO create a filter for 'yes' responses and do a metric on that, also for 'no' responses
+// TODO we know time of rsvp and time of event -- figure out how close are majority of people doing rsvp
+
 mup.stream("/2/rsvps", function(stream){
   stream
     .on("data", function(item){
+      var msDay = 60*60*24*1000;
+      var timeDiff = new Date(item.event.time) - new Date(item.mtime);
+
       var rsvp = {
         timestamp: new Date(item.mtime),
         rsvp_id: item.rsvp_id,
+        number_of_days_till_event: Math.floor(timeDiff / msDay),
         response: item.response,
         guests: item.guests,
         member_name: item.member ? item.member.member_name : '',
@@ -40,7 +44,7 @@ mup.stream("/2/rsvps", function(stream){
 
 function postRSVPToES(rsvp) {
   client.create({
-    index: 'meetup_rsvp_2',
+    index: 'meetup_rsvp_test',
     type: 'rsvps',
     body: rsvp
   }, function (error) {
