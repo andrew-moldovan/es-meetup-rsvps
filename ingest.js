@@ -44,7 +44,7 @@ mup.stream("/2/rsvps", function(stream){
 
 function postRSVPToES(rsvp) {
   client.create({
-    index: 'meetup_rsvp_test',
+    index: 'meetup_rsvp_3',
     type: 'rsvps',
     body: rsvp
   }, function (error) {
